@@ -19,21 +19,47 @@ A personal finance management web application built with React, Node.js, Express
 | Styling  | Tailwind CSS v4                         |
 | Deploy   | Docker + Docker Compose                 |
 
-## Prerequisites
+## Quick Start
 
-- **Node.js** 20 LTS or later
-- **npm** 9+
+### Option A: Docker (recommended)
 
-## Getting Started
+The easiest way to run the full application. Requires only **Docker** and **Docker Compose**.
 
-### 1. Clone the repository
+```bash
+# Build and start both services
+docker compose up --build
+
+# Or run in detached mode
+docker compose up --build -d
+```
+
+Once running:
+
+- **Frontend:** [http://localhost:5173](http://localhost:5173)
+- **Backend API:** [http://localhost:3001/api](http://localhost:3001/api)
+
+The database is persisted in a named Docker volume (`budget-data`), so your data survives container restarts.
+
+```bash
+# Stop the services
+docker compose down
+
+# Stop and remove the database volume (resets all data)
+docker compose down -v
+```
+
+### Option B: Local Development
+
+Requires **Node.js 20 LTS** (or later) and **npm 9+**.
+
+#### 1. Clone the repository
 
 ```bash
 git clone <repository-url>
 cd budget-tracker
 ```
 
-### 2. Backend setup
+#### 2. Backend setup
 
 ```bash
 cd backend
@@ -53,10 +79,11 @@ CORS_ORIGIN=http://localhost:5173
 NODE_ENV=development
 ```
 
-### 3. Frontend setup
+#### 3. Frontend setup
 
 ```bash
 cd frontend
+cp .env.example .env   # or create .env with the variable below
 npm install
 npm run dev             # start dev server on port 5173
 ```
@@ -67,18 +94,27 @@ npm run dev             # start dev server on port 5173
 VITE_API_URL=http://localhost:3001/api
 ```
 
-### 4. Open the app
+#### 4. Open the app
 
 Navigate to [http://localhost:5173](http://localhost:5173) in your browser.
 
-## Running with Docker
+## Running Tests
+
+### Backend tests
 
 ```bash
-docker compose up --build
+cd backend
+npm test
 ```
 
-- Frontend: [http://localhost:5173](http://localhost:5173)
-- Backend API: [http://localhost:3001/api](http://localhost:3001/api)
+Backend tests use an in-memory SQLite database to avoid polluting the dev database.
+
+### Frontend tests
+
+```bash
+cd frontend
+npm test
+```
 
 ## Project Structure
 
@@ -94,6 +130,7 @@ budget-tracker/
 │   │   ├── repositories/   # Data access layer
 │   │   ├── middleware/      # Error handling, validation
 │   │   └── utils/          # Helper functions
+│   ├── Dockerfile
 │   └── package.json
 ├── frontend/               # React application
 │   ├── src/
@@ -101,9 +138,36 @@ budget-tracker/
 │   │   ├── hooks/          # Custom React hooks
 │   │   ├── services/       # API client
 │   │   └── utils/          # Formatters, helpers
+│   ├── Dockerfile
+│   ├── nginx.conf
 │   └── package.json
 ├── docker-compose.yml
 └── README.md
+```
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        CLIENT BROWSER                           │
+│  React + shadcn/ui + Recharts                                   │
+│  - Dashboard with financial summary                             │
+│  - Transaction list with filters                                │
+│  - Category management                                          │
+│  - Pie charts & bar charts                                      │
+└──────────────────────┬──────────────────────────────────────────┘
+                       │ HTTP/REST API
+                       ↓
+┌─────────────────────────────────────────────────────────────────┐
+│                  EXPRESS BACKEND (Port 3001)                     │
+│  Routes → Validation (Zod) → Services → Repositories            │
+└──────────────────────┬──────────────────────────────────────────┘
+                       │ Drizzle ORM
+                       ↓
+                 ┌──────────────┐
+                 │    SQLite    │
+                 │  budget.db   │
+                 └──────────────┘
 ```
 
 ## API Endpoints
@@ -118,7 +182,9 @@ budget-tracker/
 | PUT    | `/api/transactions/:id`               | Update                         |
 | DELETE | `/api/transactions/:id`               | Delete                         |
 | POST   | `/api/transactions/recurring`          | Create recurring               |
+| GET    | `/api/transactions/recurring`          | List recurring groups          |
 | DELETE | `/api/transactions/recurring/:groupId` | Cancel subscription            |
+| PATCH  | `/api/transactions/recurring/:groupId` | Update future occurrences      |
 
 ### Categories
 
