@@ -77,12 +77,12 @@ Based on the [implementation plan](.cursor/plans/budget_tracker_implementation_f
 
 ## Phase 7: Frontend — Feature Components and Charts
 
-- [ ] **7.1** Create `Dashboard.jsx` — summary cards (income, expenses, investments, balance) + recent transactions list
-- [ ] **7.2** Create `Charts/ExpensesPieChart.jsx` — pie chart of expense distribution by category (Recharts)
-- [ ] **7.3** Create `Charts/MonthlyBarChart.jsx` — bar chart with monthly income vs expenses evolution (Recharts)
-- [ ] **7.4** Create `TransactionList.jsx` — transaction table with filters (type, category, date range) and edit/delete actions
-- [ ] **7.5** Create `TransactionForm.jsx` — dialog form for creating/editing transactions (single and recurring), with category selection and frequency picker
-- [ ] **7.6** Create `CategoryManager.jsx` — category CRUD interface with type association (expense/income/investment)
+- [x] **7.1** Create `Dashboard.jsx` — summary cards (income, expenses, investments, balance) + recent transactions list
+- [x] **7.2** Create `Charts/ExpensesPieChart.jsx` — pie chart of expense distribution by category (Recharts)
+- [x] **7.3** Create `Charts/MonthlyBarChart.jsx` — bar chart with monthly income vs expenses evolution (Recharts)
+- [x] **7.4** Create `TransactionList.jsx` — transaction table with filters (type, category, date range) and edit/delete actions
+- [x] **7.5** Create `TransactionForm.jsx` — dialog form for creating/editing transactions (single and recurring), with category selection and frequency picker
+- [x] **7.6** Create `CategoryManager.jsx` — category CRUD interface with type association (expense/income/investment)
 
 ---
 

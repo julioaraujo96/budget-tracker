@@ -1,34 +1,9 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { LayoutDashboard, ArrowLeftRight, Tags } from 'lucide-react';
-
-/**
- * Placeholder components for Phase 7 implementation.
- * Each will be replaced with a full feature component.
- */
-function DashboardPlaceholder() {
-  return (
-    <div className="flex h-64 items-center justify-center rounded-xl border border-dashed text-muted-foreground">
-      Dashboard — coming soon
-    </div>
-  );
-}
-
-function TransactionsPlaceholder() {
-  return (
-    <div className="flex h-64 items-center justify-center rounded-xl border border-dashed text-muted-foreground">
-      Transactions — coming soon
-    </div>
-  );
-}
-
-function CategoriesPlaceholder() {
-  return (
-    <div className="flex h-64 items-center justify-center rounded-xl border border-dashed text-muted-foreground">
-      Categories — coming soon
-    </div>
-  );
-}
+import { Dashboard } from '@/components/Dashboard';
+import { TransactionList } from '@/components/TransactionList';
+import { CategoryManager } from '@/components/CategoryManager';
 
 /**
  * Root application component.
@@ -69,15 +44,15 @@ function App() {
             </TabsList>
 
             <TabsContent value="dashboard">
-              <DashboardPlaceholder />
+              <Dashboard />
             </TabsContent>
 
             <TabsContent value="transactions">
-              <TransactionsPlaceholder />
+              <TransactionList />
             </TabsContent>
 
             <TabsContent value="categories">
-              <CategoriesPlaceholder />
+              <CategoryManager />
             </TabsContent>
           </Tabs>
         </main>
