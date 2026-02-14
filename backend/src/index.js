@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { config } from './config/index.js';
-import { db } from './config/database.js';
+import { db, runMigrations } from './config/database.js';
 import { categories } from './db/schema.js';
 import { categoryService } from './services/categoryService.js';
 import { transactionService } from './services/transactionService.js';
@@ -69,6 +69,14 @@ app.use(
 app.use(errorHandler);
 
 // ── Start server ─────────────────────────────────────────────────
+
+// Apply pending migrations, seed defaults, then start the server
+try {
+  runMigrations();
+} catch (error) {
+  console.error('Failed to run migrations:', error);
+  process.exit(1);
+}
 
 seedDatabase()
   .then(() => {
