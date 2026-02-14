@@ -28,8 +28,9 @@ import {
 } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
-import { formatCurrency, formatDate, capitalize } from '@/utils/formatters';
+import { formatCurrency, formatDate, capitalize, today } from '@/utils/formatters';
 import { TransactionForm } from '@/components/TransactionForm';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 /**
  * Badge color classes for each transaction type.
@@ -67,7 +68,7 @@ export function TransactionList() {
     createRecurringTransaction,
     updateTransaction,
     deleteTransaction,
-  } = useTransactions();
+  } = useTransactions({ endDate: today() });
 
   const { categories } = useCategories();
 
@@ -75,6 +76,7 @@ export function TransactionList() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   /**
    * Opens the form dialog for creating a new transaction.
@@ -93,14 +95,20 @@ export function TransactionList() {
   };
 
   /**
-   * Deletes a transaction with confirmation.
+   * Opens the confirmation dialog for deleting a transaction.
    */
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this transaction?')) {
-      return;
-    }
+  const handleDelete = (id) => {
+    setConfirmDeleteId(id);
+  };
+
+  /**
+   * Executes the deletion after user confirms via the dialog.
+   */
+  const confirmDelete = async () => {
+    const id = confirmDeleteId;
     try {
       setDeletingId(id);
+      setConfirmDeleteId(null);
       await deleteTransaction(id);
     } catch {
       // Error is handled by the hook
@@ -354,6 +362,17 @@ export function TransactionList() {
         transaction={editingTransaction}
         onSave={handleSave}
         onSaveRecurring={handleSaveRecurring}
+      />
+
+      {/* ── Delete Confirmation Dialog ─────────────────────── */}
+      <ConfirmDialog
+        open={confirmDeleteId !== null}
+        onOpenChange={(open) => { if (!open) setConfirmDeleteId(null); }}
+        title="Delete transaction"
+        description="Are you sure you want to delete this transaction? This action cannot be undone."
+        confirmLabel="Delete"
+        loading={deletingId !== null}
+        onConfirm={confirmDelete}
       />
     </div>
   );

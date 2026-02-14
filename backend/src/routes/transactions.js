@@ -87,11 +87,14 @@ export function createTransactionRouter(transactionService) {
   router.get('/', async (req, res, next) => {
     try {
       const { type, categoryId, startDate, endDate } = req.query;
+      const today = new Date().toISOString().split('T')[0];
       const filters = {};
       if (type) filters.type = type;
       if (categoryId) filters.categoryId = Number(categoryId);
-      if (startDate) filters.startDate = startDate;
-      if (endDate) filters.endDate = endDate;
+
+      // Clamp dates: never allow querying beyond today
+      filters.startDate = startDate && startDate <= today ? startDate : undefined;
+      filters.endDate = endDate && endDate <= today ? endDate : today;
 
       const transactions = await transactionService.getAll(filters);
       res.json(transactions);

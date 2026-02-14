@@ -11,7 +11,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { api } from '@/services/api';
-import { formatCurrency, formatDate, capitalize } from '@/utils/formatters';
+import { formatCurrency, formatDate, capitalize, today } from '@/utils/formatters';
 import { ExpensesPieChart } from '@/components/Charts/ExpensesPieChart';
 import { MonthlyBarChart } from '@/components/Charts/MonthlyBarChart';
 
@@ -87,7 +87,7 @@ export function Dashboard() {
       try {
         setLoading(true);
         setError(null);
-        const result = await api.getDashboard();
+        const result = await api.getDashboard({ endDate: today() });
         setData(result);
       } catch (err) {
         setError(err.message);
