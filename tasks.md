@@ -25,12 +25,12 @@ Based on the [implementation plan](.cursor/plans/budget_tracker_implementation_f
 
 ## Phase 2: Database Layer (Schema + Migrations + Connection)
 
-- [ ] **2.1** Create centralized config file `backend/src/config/index.js` (port, DB path, CORS origin)
-- [ ] **2.2** Create Drizzle schema `backend/src/db/schema.js` (categories and transactions tables)
-- [ ] **2.3** Configure Drizzle connection `backend/src/config/database.js` (better-sqlite3)
-- [ ] **2.4** Create `backend/drizzle.config.js` for migration configuration
-- [ ] **2.5** Generate and run initial migration (create tables in SQLite DB)
-- [ ] **2.6** Create seed script `backend/src/db/seed.js` with default categories (Food, Transport, Leisure, Salary, Freelance, Stocks, ETFs, Crypto, etc.)
+- [x] **2.1** Create centralized config file `backend/src/config/index.js` (port, DB path, CORS origin)
+- [x] **2.2** Create Drizzle schema `backend/src/db/schema.js` (categories and transactions tables)
+- [x] **2.3** Configure Drizzle connection `backend/src/config/database.js` (better-sqlite3)
+- [x] **2.4** Create `backend/drizzle.config.js` for migration configuration
+- [x] **2.5** Generate and run initial migration (create tables in SQLite DB)
+- [x] **2.6** Create seed script `backend/src/db/seed.js` with default categories (Food, Transport, Leisure, Salary, Freelance, Stocks, ETFs, Crypto, etc.)
 
 ---
 
