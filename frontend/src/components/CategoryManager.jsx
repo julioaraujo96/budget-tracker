@@ -36,6 +36,7 @@ import {
 } from 'lucide-react';
 import { useCategories } from '@/hooks/useCategories';
 import { capitalize } from '@/utils/formatters';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 /**
  * Badge color classes for each category type.
@@ -77,6 +78,8 @@ export function CategoryManager() {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [deleteError, setDeleteError] = useState(null);
 
   /**
    * Opens dialog for creating a new category.
@@ -99,17 +102,25 @@ export function CategoryManager() {
   };
 
   /**
-   * Deletes a category with confirmation.
+   * Opens the confirmation dialog for deleting a category.
    */
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this category? It cannot be deleted if transactions are associated with it.')) {
-      return;
-    }
+  const handleDelete = (id) => {
+    setDeleteError(null);
+    setConfirmDeleteId(id);
+  };
+
+  /**
+   * Executes the deletion after user confirms via the dialog.
+   */
+  const confirmDelete = async () => {
+    const id = confirmDeleteId;
     try {
       setDeletingId(id);
+      setDeleteError(null);
       await deleteCategory(id);
+      setConfirmDeleteId(null);
     } catch (err) {
-      alert(err.message || 'Failed to delete category. It may have associated transactions.');
+      setDeleteError(err.message || 'Failed to delete category. It may have associated transactions.');
     } finally {
       setDeletingId(null);
     }
@@ -340,6 +351,21 @@ export function CategoryManager() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* ── Delete Confirmation Dialog ─────────────────────── */}
+      <ConfirmDialog
+        open={confirmDeleteId !== null}
+        onOpenChange={(open) => { if (!open) { setConfirmDeleteId(null); setDeleteError(null); } }}
+        title="Delete category"
+        description={
+          deleteError
+            ? deleteError
+            : 'Are you sure you want to delete this category? It cannot be deleted if transactions are associated with it.'
+        }
+        confirmLabel={deleteError ? 'Try again' : 'Delete'}
+        loading={deletingId !== null}
+        onConfirm={deleteError ? () => { setDeleteError(null); confirmDelete(); } : confirmDelete}
+      />
     </div>
   );
 }
