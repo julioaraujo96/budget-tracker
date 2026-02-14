@@ -1,0 +1,750 @@
+openapi: 3.0.3
+
+info:
+  title: Budget Tracker API
+  description: |
+    RESTful API for a personal budget tracking application.
+    Manages transactions (expenses, income, investments), categories, recurring
+    subscriptions, and provides aggregated dashboard analytics.
+
+    **Date clamping:** Both `startDate` and `endDate` query parameters are
+    clamped server-side to never exceed today's date. Future recurring
+    transactions are always excluded from list and dashboard responses.
+  version: 1.0.0
+  contact:
+    name: Budget Tracker
+
+servers:
+  - url: http://localhost:3001/api
+    description: Local development server
+
+tags:
+  - name: Transactions
+    description: CRUD operations for financial transactions
+  - name: Recurring Transactions
+    description: Manage recurring subscriptions and their occurrences
+  - name: Categories
+    description: Manage transaction categories
+  - name: Dashboard
+    description: Aggregated financial analytics
+
+# ── Paths ──────────────────────────────────────────────────────────────
+
+paths:
+  # ── Transactions ───────────────────────────────────────────────────
+
+  /transactions:
+    get:
+      tags: [Transactions]
+      summary: List transactions
+      description: |
+        Returns transactions ordered by date descending.
+        Supports optional filters via query parameters.
+        `startDate` and `endDate` are clamped to never exceed today's date;
+        if `endDate` is omitted it defaults to today.
+      operationId: listTransactions
+      parameters:
+        - $ref: '#/components/parameters/TypeFilter'
+        - $ref: '#/components/parameters/CategoryIdFilter'
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
+      responses:
+        '200':
+          description: A list of transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags: [Transactions]
+      summary: Create a transaction
+      operationId: createTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionInput'
+      responses:
+        '201':
+          description: Transaction created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /transactions/{id}:
+    parameters:
+      - $ref: '#/components/parameters/TransactionId'
+
+    get:
+      tags: [Transactions]
+      summary: Get a transaction by ID
+      operationId: getTransaction
+      responses:
+        '200':
+          description: Transaction found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags: [Transactions]
+      summary: Update a transaction
+      operationId: updateTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionInput'
+      responses:
+        '200':
+          description: Transaction updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags: [Transactions]
+      summary: Delete a transaction
+      operationId: deleteTransaction
+      responses:
+        '204':
+          description: Transaction deleted
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # ── Recurring Transactions ─────────────────────────────────────────
+
+  /transactions/recurring:
+    get:
+      tags: [Recurring Transactions]
+      summary: List recurring transaction groups
+      description: |
+        Returns a summary for each recurring group including count of
+        occurrences, amount, type, date range, and category.
+      operationId: listRecurringGroups
+      responses:
+        '200':
+          description: A list of recurring groups
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecurringGroup'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags: [Recurring Transactions]
+      summary: Create a recurring transaction
+      description: |
+        Generates 12 occurrences based on the given frequency (weekly,
+        monthly, or annual). All occurrences share a `recurringGroupId`.
+      operationId: createRecurringTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecurringTransactionInput'
+      responses:
+        '201':
+          description: Recurring transaction created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurringTransactionResult'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /transactions/recurring/{groupId}:
+    parameters:
+      - $ref: '#/components/parameters/GroupId'
+
+    delete:
+      tags: [Recurring Transactions]
+      summary: Cancel a recurring subscription
+      description: |
+        Deletes all occurrences in the group. If `fromDate` is provided,
+        only occurrences on or after that date are deleted.
+      operationId: cancelRecurring
+      parameters:
+        - name: fromDate
+          in: query
+          description: Only delete occurrences from this date onward (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+            example: '2026-06-01'
+      responses:
+        '204':
+          description: Recurring subscription cancelled
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    patch:
+      tags: [Recurring Transactions]
+      summary: Update future occurrences
+      description: |
+        Updates all occurrences in the group that are on or after `fromDate`.
+        At least one updatable field must be provided alongside `fromDate`.
+      operationId: updateRecurring
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRecurringInput'
+      responses:
+        '200':
+          description: Future occurrences updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # ── Categories ─────────────────────────────────────────────────────
+
+  /categories:
+    get:
+      tags: [Categories]
+      summary: List all categories
+      operationId: listCategories
+      responses:
+        '200':
+          description: A list of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags: [Categories]
+      summary: Create a category
+      operationId: createCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInput'
+      responses:
+        '201':
+          description: Category created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /categories/{id}:
+    parameters:
+      - $ref: '#/components/parameters/CategoryId'
+
+    put:
+      tags: [Categories]
+      summary: Update a category
+      operationId: updateCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInput'
+      responses:
+        '200':
+          description: Category updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags: [Categories]
+      summary: Delete a category
+      description: Fails if any transactions reference this category.
+      operationId: deleteCategory
+      responses:
+        '204':
+          description: Category deleted
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # ── Dashboard ──────────────────────────────────────────────────────
+
+  /dashboard:
+    get:
+      tags: [Dashboard]
+      summary: Get aggregated financial summary
+      description: |
+        Returns totals by type, current balance, expense breakdown by
+        category, monthly income/expense/investment evolution, and the
+        5 most recent transactions.
+
+        `startDate` and `endDate` are clamped to never exceed today's date;
+        if `endDate` is omitted it defaults to today.
+      operationId: getDashboard
+      parameters:
+        - $ref: '#/components/parameters/TypeFilter'
+        - $ref: '#/components/parameters/CategoryIdFilter'
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
+      responses:
+        '200':
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummary'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+# ── Components ─────────────────────────────────────────────────────────
+
+components:
+
+  # ── Parameters ───────────────────────────────────────────────────────
+
+  parameters:
+    TransactionId:
+      name: id
+      in: path
+      required: true
+      description: Transaction ID
+      schema:
+        type: integer
+        example: 1
+
+    CategoryId:
+      name: id
+      in: path
+      required: true
+      description: Category ID
+      schema:
+        type: integer
+        example: 1
+
+    GroupId:
+      name: groupId
+      in: path
+      required: true
+      description: Recurring group ID
+      schema:
+        type: integer
+        example: 1771087288538
+
+    TypeFilter:
+      name: type
+      in: query
+      description: Filter by transaction type
+      schema:
+        $ref: '#/components/schemas/TransactionType'
+
+    CategoryIdFilter:
+      name: categoryId
+      in: query
+      description: Filter by category ID
+      schema:
+        type: integer
+        example: 1
+
+    StartDate:
+      name: startDate
+      in: query
+      description: |
+        Inclusive start date (YYYY-MM-DD). Clamped server-side — values
+        beyond today are ignored.
+      schema:
+        type: string
+        format: date
+        example: '2026-01-01'
+
+    EndDate:
+      name: endDate
+      in: query
+      description: |
+        Inclusive end date (YYYY-MM-DD). Defaults to today. Clamped
+        server-side — values beyond today are replaced with today's date.
+      schema:
+        type: string
+        format: date
+        example: '2026-02-14'
+
+  # ── Schemas ──────────────────────────────────────────────────────────
+
+  schemas:
+    TransactionType:
+      type: string
+      enum: [expense, income, investment]
+      example: expense
+
+    Frequency:
+      type: string
+      enum: [weekly, monthly, annual]
+      example: monthly
+
+    # ── Transaction ──────────────────────────────────────────────────
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        type:
+          $ref: '#/components/schemas/TransactionType'
+        amount:
+          type: number
+          format: double
+          example: 10.50
+        description:
+          type: string
+          nullable: true
+          example: Grocery
+        date:
+          type: string
+          format: date
+          description: ISO 8601 date (YYYY-MM-DD)
+          example: '2026-02-14'
+        categoryId:
+          type: integer
+          nullable: true
+          example: 1
+        recurringGroupId:
+          type: integer
+          nullable: true
+          description: Links occurrences of the same recurring subscription
+          example: 1771087288538
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-02-14 16:40:27'
+      required: [id, type, amount, date, createdAt]
+
+    TransactionInput:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/TransactionType'
+        amount:
+          type: number
+          format: double
+          minimum: 0
+          exclusiveMinimum: true
+          example: 10.50
+        description:
+          type: string
+          example: Grocery
+        date:
+          type: string
+          format: date
+          description: ISO 8601 date (YYYY-MM-DD)
+          example: '2026-02-14'
+        categoryId:
+          type: integer
+          example: 1
+      required: [type, amount, date]
+
+    # ── Recurring Transaction ────────────────────────────────────────
+
+    RecurringTransactionInput:
+      allOf:
+        - $ref: '#/components/schemas/TransactionInput'
+        - type: object
+          properties:
+            frequency:
+              $ref: '#/components/schemas/Frequency'
+          required: [frequency]
+
+    RecurringTransactionResult:
+      type: object
+      properties:
+        groupId:
+          type: integer
+          description: Unique ID shared by all occurrences in this group
+          example: 1771087288538
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+      required: [groupId, transactions]
+
+    RecurringGroup:
+      type: object
+      description: Summary of a recurring transaction group
+      properties:
+        groupId:
+          type: integer
+          example: 1771087288538
+        count:
+          type: integer
+          description: Number of occurrences in the group
+          example: 12
+        type:
+          $ref: '#/components/schemas/TransactionType'
+        amount:
+          type: number
+          format: double
+          example: 1200
+        description:
+          type: string
+          nullable: true
+          example: Monthly salary
+        categoryId:
+          type: integer
+          nullable: true
+          example: 9
+        firstDate:
+          type: string
+          format: date
+          example: '2026-02-14'
+        lastDate:
+          type: string
+          format: date
+          example: '2027-01-14'
+      required: [groupId, count, type, amount, firstDate, lastDate]
+
+    UpdateRecurringInput:
+      type: object
+      properties:
+        fromDate:
+          type: string
+          format: date
+          description: Update occurrences on or after this date (YYYY-MM-DD)
+          example: '2026-06-01'
+        amount:
+          type: number
+          format: double
+          minimum: 0
+          exclusiveMinimum: true
+          example: 1500
+        description:
+          type: string
+          example: Updated salary
+        categoryId:
+          type: integer
+          example: 9
+      required: [fromDate]
+
+    # ── Category ─────────────────────────────────────────────────────
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Food
+        type:
+          $ref: '#/components/schemas/TransactionType'
+      required: [id, name, type]
+
+    CategoryInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          example: Food
+        type:
+          $ref: '#/components/schemas/TransactionType'
+      required: [name, type]
+
+    # ── Dashboard ────────────────────────────────────────────────────
+
+    DashboardSummary:
+      type: object
+      properties:
+        totals:
+          type: object
+          description: Sum of amounts grouped by transaction type
+          properties:
+            income:
+              type: number
+              format: double
+              example: 1200
+            expense:
+              type: number
+              format: double
+              example: 10
+            investment:
+              type: number
+              format: double
+              example: 0
+          required: [income, expense, investment]
+        balance:
+          type: number
+          format: double
+          description: "income − expense − investment"
+          example: 1190
+        categoryBreakdown:
+          type: array
+          description: Expense amounts grouped by category, sorted descending
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: Food
+              amount:
+                type: number
+                format: double
+                example: 10
+            required: [name, amount]
+        monthlyEvolution:
+          type: array
+          description: Income, expense, and investment per month, sorted ascending
+          items:
+            type: object
+            properties:
+              month:
+                type: string
+                description: Year-month (YYYY-MM)
+                example: '2026-02'
+              income:
+                type: number
+                format: double
+                example: 1200
+              expense:
+                type: number
+                format: double
+                example: 10
+              investment:
+                type: number
+                format: double
+                example: 0
+            required: [month, income, expense, investment]
+        recentTransactions:
+          type: array
+          description: The 5 most recent transactions with category names
+          items:
+            allOf:
+              - $ref: '#/components/schemas/Transaction'
+              - type: object
+                properties:
+                  categoryName:
+                    type: string
+                    nullable: true
+                    example: Salary
+      required: [totals, balance, categoryBreakdown, monthlyEvolution, recentTransactions]
+
+    # ── Error ────────────────────────────────────────────────────────
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Human-readable error message
+          example: Transaction not found
+      required: [error]
+
+    ValidationErrorDetail:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Validation failed
+        details:
+          type: array
+          description: Zod validation issue details
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                example: invalid_type
+              message:
+                type: string
+                example: Amount must be positive
+              path:
+                type: array
+                items:
+                  type: string
+                example: [amount]
+      required: [error]
+
+  # ── Responses ────────────────────────────────────────────────────────
+
+  responses:
+    ValidationError:
+      description: Request body failed validation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorDetail'
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Transaction not found
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Internal server error

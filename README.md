@@ -200,7 +200,3 @@ budget-tracker/
 | Method | Endpoint         | Description      |
 | ------ | ---------------- | ---------------- |
 | GET    | `/api/dashboard` | Aggregated data  |
-
-## License
-
-ISC
