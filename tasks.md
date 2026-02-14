@@ -51,27 +51,27 @@ Based on the [implementation plan](.cursor/plans/budget_tracker_implementation_f
 
 ## Phase 5: Backend — API Routes, Middleware, and Entry Point
 
-- [ ] **5.1** Create `backend/src/middleware/errorHandler.js` — error classes (AppError, NotFoundError, ValidationError) + global error handler middleware
-- [ ] **5.2** Create `backend/src/middleware/validation.js` — Zod schemas for transaction, recurring transaction, and category
-- [ ] **5.3** Create `backend/src/utils/dateUtils.js` — date helper functions
-- [ ] **5.4** Create `backend/src/routes/categories.js` — endpoints GET, POST `/api/categories` and PUT, DELETE `/api/categories/:id`
-- [ ] **5.5** Create `backend/src/routes/transactions.js` — CRUD endpoints `/api/transactions` + recurring endpoints
-- [ ] **5.6** Create `backend/src/routes/dashboard.js` — endpoint GET `/api/dashboard`
-- [ ] **5.7** Create `backend/src/routes/index.js` — route aggregator
-- [ ] **5.8** Create `backend/src/index.js` — Express entry point (CORS, JSON body parser, routes, error handler, initial seed)
+- [x] **5.1** Create `backend/src/middleware/errorHandler.js` — error classes (AppError, NotFoundError, ValidationError) + global error handler middleware
+- [x] **5.2** Create `backend/src/middleware/validation.js` — Zod schemas for transaction, recurring transaction, and category
+- [x] **5.3** Create `backend/src/utils/dateUtils.js` — date helper functions
+- [x] **5.4** Create `backend/src/routes/categories.js` — endpoints GET, POST `/api/categories` and PUT, DELETE `/api/categories/:id`
+- [x] **5.5** Create `backend/src/routes/transactions.js` — CRUD endpoints `/api/transactions` + recurring endpoints
+- [x] **5.6** Create `backend/src/routes/dashboard.js` — endpoint GET `/api/dashboard`
+- [x] **5.7** Create `backend/src/routes/index.js` — route aggregator
+- [x] **5.8** Create `backend/src/index.js` — Express entry point (CORS, JSON body parser, routes, error handler, initial seed)
 
 ---
 
 ## Phase 6: Frontend — Project Setup and Core Components
 
-- [ ] **6.1** Configure Vite proxy to backend (port 3001) in `frontend/vite.config.js`
-- [ ] **6.2** Set up shadcn/ui with Tailwind CSS (`components.json`, `tailwind.config.js`, `globals.css`)
-- [ ] **6.3** Install shadcn/ui components (Button, Card, Input, Select, Dialog, Table, Badge, Tabs, Label, Separator)
-- [ ] **6.4** Create API client `frontend/src/services/api.js` (fetch wrapper with error handling)
-- [ ] **6.5** Create custom hook `frontend/src/hooks/useTransactions.js` (CRUD + loading/error state)
-- [ ] **6.6** Create custom hook `frontend/src/hooks/useCategories.js`
-- [ ] **6.7** Create utilities `frontend/src/utils/formatters.js` (EUR currency formatting, date formatting)
-- [ ] **6.8** Create `frontend/src/App.jsx` with tab-based navigation (Dashboard, Transactions, Categories) and `ErrorBoundary`
+- [x] **6.1** Configure Vite proxy to backend (port 3001) in `frontend/vite.config.js`
+- [x] **6.2** Set up shadcn/ui with Tailwind CSS (`components.json`, `tailwind.config.js`, `globals.css`)
+- [x] **6.3** Install shadcn/ui components (Button, Card, Input, Select, Dialog, Table, Badge, Tabs, Label, Separator)
+- [x] **6.4** Create API client `frontend/src/services/api.js` (fetch wrapper with error handling)
+- [x] **6.5** Create custom hook `frontend/src/hooks/useTransactions.js` (CRUD + loading/error state)
+- [x] **6.6** Create custom hook `frontend/src/hooks/useCategories.js`
+- [x] **6.7** Create utilities `frontend/src/utils/formatters.js` (EUR currency formatting, date formatting)
+- [x] **6.8** Create `frontend/src/App.jsx` with tab-based navigation (Dashboard, Transactions, Categories) and `ErrorBoundary`
 
 ---
 
