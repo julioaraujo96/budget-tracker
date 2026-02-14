@@ -88,9 +88,9 @@ Based on the [implementation plan](.cursor/plans/budget_tracker_implementation_f
 
 ## Phase 8: Docker and Final Polish
 
-- [ ] **8.1** Create `backend/Dockerfile` (Node 20 Alpine, production deps)
-- [ ] **8.2** Create `frontend/Dockerfile` (multi-stage: Vite build + Nginx serve)
-- [ ] **8.3** Create `frontend/nginx.conf` (SPA routing + API proxy)
-- [ ] **8.4** Create `docker-compose.yml` at root (backend + frontend services, SQLite volume)
-- [ ] **8.5** Update `README.md` with complete instructions (local dev + Docker)
-- [ ] **8.6** Initial commit with full working application
+- [x] **8.1** Create `backend/Dockerfile` (Node 20 Alpine, production deps)
+- [x] **8.2** Create `frontend/Dockerfile` (multi-stage: Vite build + Nginx serve)
+- [x] **8.3** Create `frontend/nginx.conf` (SPA routing + API proxy)
+- [x] **8.4** Create `docker-compose.yml` at root (backend + frontend services, SQLite volume)
+- [x] **8.5** Update `README.md` with complete instructions (local dev + Docker)
+- [x] **8.6** Initial commit with full working application
