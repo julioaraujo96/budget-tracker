@@ -1,10 +1,14 @@
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import Database from 'better-sqlite3';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as schema from '../db/schema.js';
 import { config } from './index.js';
+
+// Ensure the parent directory for the SQLite file exists
+fs.mkdirSync(path.dirname(config.databasePath), { recursive: true });
 
 const sqlite = new Database(config.databasePath);
 
