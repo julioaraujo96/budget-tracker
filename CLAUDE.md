@@ -211,7 +211,7 @@ budget-tracker/
 │   ├── package.json
 │   ├── vite.config.js
 │   └── Dockerfile
-├── docker-compose.yml            # Multi-service orchestration
+├── compose.yml            # Multi-service orchestration
 ├── README.md                     # Setup and usage instructions
 └── CLAUDE.md                     # This file
 ```
@@ -863,7 +863,7 @@ VITE_API_URL=http://localhost:3001/api
 
 ## Docker Configuration
 
-### docker-compose.yml
+### compose.yml
 
 ```yaml
 version: '3.8'

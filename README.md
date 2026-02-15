@@ -141,7 +141,7 @@ budget-tracker/
 │   ├── Dockerfile
 │   ├── nginx.conf
 │   └── package.json
-├── docker-compose.yml
+├── compose.yml
 └── README.md
 ```
 

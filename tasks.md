@@ -91,6 +91,6 @@ Based on the [implementation plan](.cursor/plans/budget_tracker_implementation_f
 - [x] **8.1** Create `backend/Dockerfile` (Node 20 Alpine, production deps)
 - [x] **8.2** Create `frontend/Dockerfile` (multi-stage: Vite build + Nginx serve)
 - [x] **8.3** Create `frontend/nginx.conf` (SPA routing + API proxy)
-- [x] **8.4** Create `docker-compose.yml` at root (backend + frontend services, SQLite volume)
+- [x] **8.4** Create `compose.yml` at root (backend + frontend services, SQLite volume)
 - [x] **8.5** Update `README.md` with complete instructions (local dev + Docker)
 - [x] **8.6** Initial commit with full working application
