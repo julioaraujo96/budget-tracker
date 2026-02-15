@@ -1,7 +1,6 @@
 # Budget Tracker — Tasks
 
 Full task list for the Budget Tracker project implementation.
-Based on the [implementation plan](.cursor/plans/budget_tracker_implementation_fe7945f1.plan.md) and [architecture document](docs/arquitetura.pdf).
 
 ---
 
@@ -36,16 +35,16 @@ Based on the [implementation plan](.cursor/plans/budget_tracker_implementation_f
 
 ## Phase 3: Backend — Repository Layer
 
-- [ ] **3.1** Create `backend/src/repositories/categoryRepository.js` — full CRUD (findAll, findById, create, update, delete)
-- [ ] **3.2** Create `backend/src/repositories/transactionRepository.js` — CRUD with filters (type, categoryId, startDate, endDate) + recurring group methods (findByGroupId, deleteByGroupId, updateFutureByGroupId)
+- [x] **3.1** Create `backend/src/repositories/categoryRepository.js` — full CRUD (findAll, findById, create, update, delete)
+- [x] **3.2** Create `backend/src/repositories/transactionRepository.js` — CRUD with filters (type, categoryId, startDate, endDate) + recurring group methods (findByGroupId, deleteByGroupId, updateFutureByGroupId)
 
 ---
 
 ## Phase 4: Backend — Service Layer (Business Logic)
 
-- [ ] **4.1** Create `backend/src/services/categoryService.js` — category business logic (validation, prevent deleting categories with associated transactions)
-- [ ] **4.2** Create `backend/src/services/transactionService.js` — transaction CRUD + recurring transaction generation (12 occurrences, weekly/monthly/annual frequencies) + cancel/edit future subscriptions
-- [ ] **4.3** Create `backend/src/services/dashboardService.js` — aggregated data: totals by type, balance, category distribution, monthly evolution
+- [x] **4.1** Create `backend/src/services/categoryService.js` — category business logic (validation, prevent deleting categories with associated transactions)
+- [x] **4.2** Create `backend/src/services/transactionService.js` — transaction CRUD + recurring transaction generation (12 occurrences, weekly/monthly/annual frequencies) + cancel/edit future subscriptions
+- [x] **4.3** Create `backend/src/services/dashboardService.js` — aggregated data: totals by type, balance, category distribution, monthly evolution
 
 ---
 
